@@ -57,18 +57,19 @@ const Navbar = () => {
             <MDBIcon icon="bars" fas />
           </MDBNavbarToggler>
           <h1 className="logo" onClick={() => navigate('/')}>
-            Kitter
+            PawPraise
           </h1>
           <MDBCollapse navbar show={showCollapse} id="navbarCollapse">
             <MDBNavbarNav className="navbar-links">
               <MDBNavbarLink onClick={() => handleNavigation('/')}>Home</MDBNavbarLink>
               <MDBNavbarLink onClick={() => handleNavigation('/products')}>Products</MDBNavbarLink>
               <MDBNavbarLink onClick={() => handleNavigation('/cat-food')} className="nav-food">
-                Cat Food
+                Cat Items
               </MDBNavbarLink>
               <MDBNavbarLink onClick={() => handleNavigation('/dog-food')} className="nav-food">
-                Dog Food
+                Dog Items
               </MDBNavbarLink>
+              <MDBNavbarLink onClick={() => handleNavigation('/aboutus')}>About Us</MDBNavbarLink>
             </MDBNavbarNav>
           </MDBCollapse>
 
@@ -77,7 +78,7 @@ const Navbar = () => {
               <span style={{ fontSize: '15px', cursor: 'pointer' }} onClick={() => !loginStatus && navigate('/login')}>
                 Hello,
                 <br />
-                {name ? <>{name.split(' ')[0]}</> : <>Sign In</>}
+                {name ? <>{name.split(' ')[0]}</> : <>Sign In Here</>}
               </span>
             </div>
             <div>
@@ -140,8 +141,6 @@ const Navbar = () => {
                         <>
                           <li>My Profile</li>
                           <hr />
-                          <li onClick={() => navigate('/orders')}>Orders</li>
-                          <hr />
                           <li onClick={() => navigate('/wishlist')}>Wishlist</li>
                           <hr />
                           <li
@@ -172,7 +171,6 @@ const Navbar = () => {
                   loginStatus ? navigate('/cart') : toast.error('Sign in to your account');
                 }}
               >
-                <MDBIcon fas icon="shopping-cart" className="cart" />
 
                 {loginStatus && cart.length > 0 && (
                   <MDBBadge color="dark" notification pill style={{ color: 'white' }}>

@@ -12,7 +12,7 @@ function Orders() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/api/users/${userID}/orders`);
+        const response = await axios.get(`http://localhost:5000/api/users/${userID}/orders`);
         setOrder(response.data.data);
       } catch (error) {
         toast.error(error.response.data.message);

@@ -17,6 +17,15 @@ router
   .get('/products/:id', tryCatch(controller.getProductById))
   .get('/products/category/:categoryname', tryCatch(controller.getProductsByCategory))
 
+  .post('/products/:id/reviews', tryCatch(controller.addReview))
+  .get('/products/:id/reviews', tryCatch(controller.getReviews))
+  .get('/:id/profile', tryCatch(controller.getProfile))
+
+  .post('/products/:productId/reviews/:reviewId/comments', tryCatch(controller.addComment))
+
+// Fetch comments for a review
+  .get('/products/:productId/reviews/:reviewId/comments', tryCatch(controller.getComments))
+
   // .use(checkAuth(process.env.USER_ACCESS_TOKEN_SECRET))
 
   .get('/:id/cart', tryCatch(controller.showCart))

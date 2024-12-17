@@ -5,7 +5,7 @@ const Brands = () => {
   return (
     <section className="brands mt-5 mb-5 d-flex flex-column align-items-center">
       <h1 className="text-black fw-bolder mt-5">
-        <span>Popular</span> Brands
+        <span>Popular</span> Product Brands
       </h1>
       <div className="d-flex flex-wrap justify-content-center align-items-center mt-4 gap-5">
         {brandImages.map((brandImg, index) => (

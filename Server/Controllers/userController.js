@@ -45,7 +45,7 @@ module.exports = {
       return res.status(401).json({ message: 'Incorrect Password. Try again.' });
     }
 
-    const accessToken = jwt.sign({ email }, process.env.USER_ACCESS_TOKEN_SECRET, { expiresIn: '10m' });
+    const accessToken = jwt.sign({ email }, process.env.USER_ACCESS_TOKEN_SECRET, { expiresIn: '30m' });
     const refreshToken = jwt.sign({ email }, process.env.USER_REFRESH_TOKEN_SECRET, { expiresIn: '3d' });
 
     res
@@ -62,6 +62,28 @@ module.exports = {
         data: { jwt_token: accessToken, name: user.name, userID: user._id },
       });
   },
+
+  getProfile: async (req, res) => {
+    const userID = req.params.id;
+  
+    const user = await User.findById(userID).select('-password').populate('orders').populate('wishlist');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+  
+    res.status(200).json({
+      status: 'success',
+      message: 'Successfully fetched user profile',
+      data: {
+        name: user.name,
+        email: user.email,
+        cart: user.cart,
+        wishlist: user.wishlist,
+        orders: user.orders,
+      },
+    });
+  },
+  
 
   getAllProducts: async (req, res) => {
     const products = await Product.find();
@@ -107,6 +129,158 @@ module.exports = {
       data: products,
     });
   },
+
+
+  addReview: async (req, res) => {
+    const productID = req.params.id;
+    //const userID = req.body.userID; // Extract user ID from request
+    const { userID, rating, review } = req.body;
+  
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+    }
+  
+    const product = await Product.findById(productID);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+  
+    const existingReview = product.reviews.find((r) => r.user.toString() === userID);
+    if (existingReview) {
+      return res.status(400).json({ message: 'You have already reviewed this product' });
+    }
+  
+    product.reviews.push({ user: userID, rating, review });
+    await product.save();
+  
+    res.status(200).json({
+      status: 'success',
+      message: 'Review added successfully',
+      data: product,
+    });
+  },
+  
+
+  // getReviews: async (req, res) => {
+  //   const productID = req.params.id;
+  //   const product = await Product.findById(productID).populate('reviews.user', 'name email');
+  //   if (!product) {
+  //     return res.status(404).json({ message: 'Product not found' });
+  //   }
+  
+  //   res.status(200).json({
+  //     status: 'success',
+  //     message: 'Successfully fetched reviews',
+  //     data: product.reviews,
+  //   });
+  // },
+
+  getReviews: async (req, res) => {
+    const productID = req.params.id;
+    
+    try {
+      const product = await Product.findById(productID).populate({
+        path: 'reviews.user', // Populate the `user` field in the reviews
+        select: 'name email', // Only include `name` and `email` fields
+      });
+  
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+  
+      res.status(200).json({
+        status: 'success',
+        message: 'Successfully fetched reviews',
+        data: product.reviews,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to fetch reviews',
+        error: error.message,
+      });
+    }
+  },
+  
+  addComment: async (req, res) => {
+    const { productId, reviewId } = req.params;
+    const { userID, text } = req.body;
+  
+    if (!text || !text.trim()) {
+      return res.status(400).json({ message: 'Comment cannot be empty' });
+    }
+  
+    try {
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+  
+      const review = product.reviews.id(reviewId); // Find the specific review
+      if (!review) {
+        return res.status(404).json({ message: 'Review not found' });
+      }
+  
+      const user = await User.findById(userID);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Add the comment to the review
+      review.comments.push({
+        user: userID,
+        text,
+      });
+  
+      await product.save();
+  
+      res.status(200).json({
+        status: 'success',
+        message: 'Comment added successfully',
+        data: review.comments, // Return updated comments
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to add comment',
+        error: error.message,
+      });
+    }
+  },
+
+
+  getComments: async (req, res) => {
+    const { productId, reviewId } = req.params;
+  
+    try {
+      const product = await Product.findById(productId).populate({
+        path: 'reviews.comments.user',
+        select: 'name email', // Populate user details for each comment
+      });
+  
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+  
+      const review = product.reviews.id(reviewId); // Find the specific review
+      if (!review) {
+        return res.status(404).json({ message: 'Review not found' });
+      }
+  
+      res.status(200).json({
+        status: 'success',
+        message: 'Successfully fetched comments',
+        data: review.comments,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to fetch comments',
+        error: error.message,
+      });
+    }
+  },  
+  
 
   showCart: async (req, res) => {
     const userID = req.params.id;

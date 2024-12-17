@@ -7,6 +7,21 @@ const productSchema = new mongoose.Schema({
   price: Number,
   image: String,
   category: String,
+  reviews: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      rating: { type: Number, min: 1, max: 5 },
+      review: String,
+      createdAt: { type: Date, default: Date.now },
+      comments: [
+        {
+          user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Commenter
+          text: String,
+          createdAt: { type: Date, default: Date.now },
+        },
+      ],
+    },
+  ],
 });
 
 const productValidationSchema = Joi.object({

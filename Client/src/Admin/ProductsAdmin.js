@@ -20,17 +20,32 @@ export default function ProductsAdmin() {
   }, [selectedOption, products]);
 
   // Handle product deletion
-  const handleDelete = async (productID) => {
-    const confirmation = window.confirm('Are you sure you want to delete this product?\nThis action cannot be undone.');
-    if (confirmation) {
-      try {
-        const response = await axios.delete(`/api/admin/products/${productID}`);
-        toast.success(response.data.message);
-      } catch (error) {
-        toast.error(error.response.data.message);
+const handleDelete = async (productID) => {
+  const confirmation = window.confirm(
+    'Are you sure you want to delete this product?\nThis action cannot be undone.'
+  );
+
+  if (confirmation) {
+    try {
+      const token = localStorage.getItem('jwt_token'); // Fetch JWT token
+      if (!token) {
+        toast.error('Unauthorized. Please log in again.');
+        return;
       }
+
+      const response = await axios.delete(`http://localhost:5000/api/admin/products/${productID}`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Add token to Authorization header
+        },
+      });
+
+      toast.success(response.data.message || 'Product deleted successfully');
+      // Optionally, refresh or update the list of products in the UI
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete product');
     }
-  };
+  }
+};
 
   return (
     <div>

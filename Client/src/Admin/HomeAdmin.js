@@ -1,71 +1,50 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { axios } from '../Utils/Axios';
-import { MDBIcon } from 'mdb-react-ui-kit';
-import { PetContext } from '../Context/Context';
-import toast from 'react-hot-toast';
+import React, { useContext, useEffect, useState } from "react";
+import { axios } from "../Utils/Axios";
+import { PetContext } from "../Context/Context";
+import toast from "react-hot-toast";
 
 export default function HomeDashboard() {
-  const { products, handlePrice } = useContext(PetContext);
-  const [stats, setStats] = useState([{ totalProductsSold: '', totalRevenue: '' }]);
+  const { products = [], handlePrice } = useContext(PetContext); // Default to empty array
   const [profile, setProfile] = useState([]);
-  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true); // Added loading state
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const [usersResponse, statsResponse, orderResponse] = await Promise.all([
-          axios.get('/api/admin/users'),
-          axios.get('/api/admin/stats'),
-          axios.get('/api/admin/orders'),
-        ]);
+      const token = localStorage.getItem("jwt_token"); // Get the token
 
-        if (statsResponse.status === 200) setStats(statsResponse.data.data);
-        if (orderResponse.status === 200) setOrders(orderResponse.data.data);
-        if (usersResponse.status === 200) setProfile(usersResponse.data.data);
+      try {
+        const usersResponse = await axios.get("http://localhost:5000/api/admin/users", {
+          headers: {
+            Authorization: `Bearer ${token}`, // Attach token to Authorization header
+          },
+        });
+
+        if (usersResponse?.status === 200 && usersResponse?.data?.data) {
+          setProfile(usersResponse.data.data);
+        }
       } catch (error) {
-        toast.error(error.response.data.message);
+        toast.error(error.response?.data?.message || "Unauthorized. Please log in again.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
-  }, [setProfile, setStats]);
+  }, []);
+  const reversedData = Array.isArray(products) ? [...products].reverse() : [];
+  const reversedProfile = Array.isArray(profile) ? [...profile].reverse() : [];
 
-  // Reverse product details and user profiles for display as recent
-  const reversedData = [...products].reverse();
-  const reversedProfile = [...profile].reverse();
+  if (loading) {
+    return (
+      <div className="text-center my-5">
+        <h3>Loading Dashboard...</h3>
+      </div>
+    );
+  }
 
   return (
     <div>
-      <div className="d-flex justify-content-center align-items-center gap-5 mb-5">
-        <div className="content-box">
-          <h6>Total Orders</h6>
-          <h2>{orders ? orders.length : 0}</h2>
-          <p className="text-success">
-            <MDBIcon fas icon="chart-line" className="me-2" />
-            {Math.round(Math.random() * 100) / 10}% <span className="text-muted"> Last Month</span>
-          </p>
-        </div>
-
-        <div className="content-box">
-          <h6>Total Revenue</h6>
-          <h2>{stats[0] ? handlePrice(stats[0].totalRevenue) : 0}</h2>
-          <p className="text-success">
-            <MDBIcon fas icon="chart-line" className="me-2" />
-            {Math.round(Math.random() * 100) / 10}% <span className="text-muted"> Last Month</span>
-          </p>
-        </div>
-
-        <div className="content-box">
-          <h6>Total Products Sold</h6>
-          <h2>{stats[0] ? stats[0].totalProductsSold : 0}</h2>
-
-          <p className="text-success">
-            <MDBIcon fas icon="chart-line" className="me-2" />
-            {Math.round(Math.random() * 100) / 10}% <span className="text-muted"> Last Month</span>
-          </p>
-        </div>
-      </div>
-
+      {/* Recent Products Section */}
       <div className="dashboard-recent d-flex justify-content-center">
         <div className="dashboard-table recent-admin ps-5">
           <h4>New Products</h4>
@@ -77,18 +56,29 @@ export default function HomeDashboard() {
                 <td>Price</td>
               </tr>
             </thead>
-            {reversedData.map((product) => (
-              <tbody key={product._id}>
+            {reversedData?.length > 0 ? (
+              reversedData.map((product) => (
+                <tbody key={product?._id}>
+                  <tr>
+                    <th className="text-center">{product?.category || "N/A"}</th>
+                    <th>{product?.title?.slice(0, 24) || "Untitled"}</th>
+                    <th>{handlePrice(product?.price || 0)}</th>
+                  </tr>
+                </tbody>
+              ))
+            ) : (
+              <tbody>
                 <tr>
-                  <th className="text-center">{product.category}</th>
-                  <th>{product.title.slice(0, 24)}</th>
-                  <th>{handlePrice(product.price)}</th>
+                  <td colSpan="3" className="text-center">
+                    No products available
+                  </td>
                 </tr>
               </tbody>
-            ))}
+            )}
           </table>
         </div>
 
+        {/* Recent Users Section */}
         <div className="dashboard-table recent-admin ps-5">
           <h4>Recent Users</h4>
           <table>
@@ -98,14 +88,24 @@ export default function HomeDashboard() {
                 <td>Email</td>
               </tr>
             </thead>
-            {reversedProfile.map((user) => (
-              <tbody key={user._id}>
+            {reversedProfile?.length > 0 ? (
+              reversedProfile.map((user) => (
+                <tbody key={user?._id}>
+                  <tr>
+                    <th>{user?.name?.split(" ")[0] || "Unknown"}</th>
+                    <th>{user?.email || "N/A"}</th>
+                  </tr>
+                </tbody>
+              ))
+            ) : (
+              <tbody>
                 <tr>
-                  <th>{user.name.split(' ')[0]}</th>
-                  <th>{user.email}</th>
+                  <td colSpan="2" className="text-center">
+                    No users available
+                  </td>
                 </tr>
               </tbody>
-            ))}
+            )}
           </table>
         </div>
       </div>

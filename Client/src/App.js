@@ -16,6 +16,7 @@ import Wishlist from './Pages/Wishlist';
 import Footer from './Components/Footer';
 import FixedAdmin from './Admin/FixedAdmin';
 import SuccessPayment from './Pages/SuccessPayment';
+import AboutUs from './Pages/AboutUs';
 
 function App() {
   // Check if the current route is within the admin dashboard
@@ -31,15 +32,18 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/registration" element={<Registration />} />
+          <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/dog-food" element={<DogFood />} />
           <Route path="/cat-food" element={<CatFood />} />
+          
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/products" element={<AllProducts />} />
           <Route path="/products/:id" element={<Details />} />
           <Route path="/dog-food/:id" element={<Details />} />
           <Route path="/cat-food/:id" element={<Details />} />
+          
           <Route path="/payment/success" element={<SuccessPayment />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/dashboard" element={<FixedAdmin />} />

@@ -16,7 +16,7 @@ const PetProvider = ({ children }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/users/products');
+        const response = await axios.get('http://localhost:5000/api/users/products');
         setProducts(response.data.data);
       } catch (error) {
         toast.error(error.response.data.message);
@@ -27,7 +27,7 @@ const PetProvider = ({ children }) => {
 
   const fetchCatFood = async () => {
     try {
-      const response = await axios.get('/api/users/products/category/Cat');
+      const response = await axios.get('http://localhost:5000/api/users/products/category/Cat');
       return response.data.data;
     } catch (error) {
       toast.error(error.response.data.message);
@@ -36,7 +36,7 @@ const PetProvider = ({ children }) => {
 
   const fetchDogFood = async () => {
     try {
-      const response = await axios.get('/api/users/products/category/Dog');
+      const response = await axios.get('http://localhost:5000/api/users/products/category/Dog');
       return response.data.data;
     } catch (error) {
       toast.error(error.response.data.message);
@@ -45,7 +45,7 @@ const PetProvider = ({ children }) => {
 
   const fetchProductDetails = async (id) => {
     try {
-      const response = await axios.get(`/api/users/products/${id}`);
+      const response = await axios.get(`http://localhost:5000/api/users/products/${id}`);
       return response.data.data;
     } catch (error) {
       toast.error(error.response.data.message);
@@ -54,7 +54,7 @@ const PetProvider = ({ children }) => {
 
   const fetchCart = async () => {
     try {
-      const response = await axios.get(`/api/users/${userID}/cart`);
+      const response = await axios.get(`http://localhost:5000/api/users/${userID}/cart`);
       setCart(response.data.data);
     } catch (error) {
       toast.error(error.response.data.message);
@@ -63,7 +63,7 @@ const PetProvider = ({ children }) => {
 
   const addToCart = async (productID) => {
     try {
-      await axios.post(`/api/users/${userID}/cart`, { productID });
+      await axios.post(`http://localhost:5000/api/users/${userID}/cart`, { productID });
       const response = await axios.get(`/api/users/${userID}/cart`);
       setCart(response.data.data);
       toast.success('Added to cart');
@@ -75,7 +75,7 @@ const PetProvider = ({ children }) => {
   // Remove an item from the cart
   const removeFromCart = async (productID) => {
     try {
-      await axios.delete(`/api/users/${userID}/cart/${productID}`);
+      await axios.delete(`http://localhost:5000/api/users/${userID}/cart/${productID}`);
       const response = await axios.get(`/api/users/${userID}/cart`);
       setCart(response.data.data);
       toast.success('Removed from cart');
@@ -88,7 +88,7 @@ const PetProvider = ({ children }) => {
   const handleQuantity = async (cartID, quantityChange) => {
     const data = { id: cartID, quantityChange };
     try {
-      await axios.put(`/api/users/${userID}/cart`, data);
+      await axios.put(`http://localhost:5000/api/users/${userID}/cart`, data);
     } catch (error) {
       toast.error(error.response.data.message);
     }
@@ -97,7 +97,7 @@ const PetProvider = ({ children }) => {
   const fetchWishlist = async () => {
     try {
       if (loginStatus) {
-        const response = await axios.get(`/api/users/${userID}/wishlist`);
+        const response = await axios.get(`http://localhost:5000/api/users/${userID}/wishlist`);
         setWishlist(response.data.data);
       }
     } catch (error) {
@@ -107,8 +107,8 @@ const PetProvider = ({ children }) => {
 
   const addToWishlist = async (productID) => {
     try {
-      await axios.post(`/api/users/${userID}/wishlist`, { productID });
-      const response = await axios.get(`/api/users/${userID}/wishlist`);
+      await axios.post(`http://localhost:5000/api/users/${userID}/wishlist`, { productID });
+      const response = await axios.get(`http://localhost:5000/api/users/${userID}/wishlist`);
       toast.success('Added to wishlist');
       setWishlist(response.data.data);
     } catch (error) {
@@ -118,8 +118,8 @@ const PetProvider = ({ children }) => {
 
   const removeFromWishlist = async (productID) => {
     try {
-      await axios.delete(`/api/users/${userID}/wishlist/${productID}`);
-      const response = await axios.get(`/api/users/${userID}/wishlist`);
+      await axios.delete(`http://localhost:5000/api/users/${userID}/wishlist/${productID}`);
+      const response = await axios.get(`http://localhost:5000/api/users/${userID}/wishlist`);
       toast.success('Removed from wishlist');
       setWishlist(response.data.data);
     } catch (error) {
@@ -136,7 +136,7 @@ const PetProvider = ({ children }) => {
   // Handle the checkout process
   const handleCheckout = async () => {
     try {
-      const response = await axios.post(`/api/users/${userID}/payment`);
+      const response = await axios.post(`http://localhost:5000/api/users/${userID}/payment`);
       const url = response.data.url;
       const confirmation = window.confirm('You are being redirected to the Stripe payment gateway. Continue?');
       if (confirmation) window.location.replace(url);
@@ -147,7 +147,7 @@ const PetProvider = ({ children }) => {
 
   const fetchPaymentStatus = async () => {
     try {
-      await axios.get(`/api/users/payment/success`);
+      await axios.get(`http://localhost:5000/api/users/payment/success`);
       setCart([]);
       setTimeout(() => {
         navigate('/');
@@ -157,6 +157,56 @@ const PetProvider = ({ children }) => {
       navigate('/');
     }
   };
+
+  const addReview = async (productID, reviewData) => {
+    try {
+      const response = await axios.post(`http://localhost:5000/api/users/products/${productID}/reviews`, reviewData);
+      toast.success('Review added successfully');
+      return response.data.data; // Return updated reviews list
+    } catch (error) {
+      toast.error(error.response.data.message || 'Failed to add review');
+    }
+  };
+  
+  const fetchReviews = async (productID) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/users/products/${productID}/reviews`);
+      return response.data.data; // Return reviews
+    } catch (error) {
+      toast.error(error.response.data.message || 'Failed to fetch reviews');
+    }
+  };
+
+  const fetchComments = async (productID, reviewID) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/users/products/${productID}/reviews/${reviewID}/comments`
+      );
+      return response.data.data; // Return the list of comments for the review
+    } catch (error) {
+      toast.error(error.response.data.message || 'Failed to fetch comments');
+    }
+  };
+
+  const addComment = async (productID, reviewID, commentData) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/users/products/${productID}/reviews/${reviewID}/comments`,
+        commentData
+      );
+      toast.success('Comment added successfully');
+      return response.data.data; // Return the updated list of comments
+    } catch (error) {
+      toast.error(error.response.data.message || 'Failed to add comment');
+    }
+  };
+  
+  const setProductDetails = (updatedProducts) => {
+    setProducts(updatedProducts);
+  };
+  // Add these to the `value` prop in the `PetContext.Provider`
+  
+  
 
   return (
     <PetContext.Provider
@@ -180,6 +230,11 @@ const PetProvider = ({ children }) => {
         totalPrice,
         handleCheckout,
         fetchPaymentStatus,
+        fetchReviews,
+        addReview,
+        fetchComments,
+        addComment,
+        setProductDetails,
       }}
     >
       {children}

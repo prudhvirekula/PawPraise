@@ -13,16 +13,30 @@ export default function UserDetailsAdmin() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/api/admin/users/${id}`);
+        const token = localStorage.getItem('jwt_token'); // Fetch JWT token
+        if (!token) {
+          toast.error('Unauthorized. Please log in again.');
+          return;
+        }
+  
+        const response = await axios.get(
+          `http://localhost:5000/api/admin/users/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Include JWT token in headers
+            },
+          }
+        );
+  
         setUser(response.data.data);
       } catch (error) {
-        toast.error(error.response.data.message);
+        toast.error(error.response?.data?.message || 'Failed to fetch user details.');
       }
     };
-
+  
     fetchData();
   }, [id]);
-
+  
   return (
     <div className="d-flex flex-column align-items-center pt-3">
       <div className="d-flex align-items-center gap-3">

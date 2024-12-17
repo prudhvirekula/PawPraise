@@ -11,10 +11,22 @@ export default function UsersAdmin() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/admin/users');
+        const token = localStorage.getItem('jwt_token'); // Fetch token from localStorage
+
+        if (!token) {
+          toast.error('Unauthorized. Please log in again.');
+          return;
+        }
+
+        const response = await axios.get('http://localhost:5000/api/admin/users', {
+          headers: {
+            Authorization: `Bearer ${token}`, // Pass the token in Authorization header
+          },
+        });
+
         setProfile(response.data.data);
       } catch (error) {
-        toast.error(error.response.data.message);
+        toast.error(error.response?.data?.message || 'Failed to fetch users');
       }
     };
 

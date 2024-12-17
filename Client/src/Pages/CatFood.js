@@ -19,7 +19,7 @@ export default function CatFood() {
     <>
       <section className="products d-flex flex-column align-items-center mb-5" style={{ paddingTop: '80px' }}>
         <h1 className="mt-5 text-black fw-bolder">
-          <span>Cat</span> Food
+          <span>Cat</span> Products
         </h1>
 
         <ProductList products={catFood} />

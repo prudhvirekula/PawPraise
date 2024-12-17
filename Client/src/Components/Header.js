@@ -9,11 +9,11 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header-info">
-        <h2>HIGH QUALITY</h2>
-        <h1>PET FOOD</h1>
-        <p>Sale up to 40% off today</p>
+        <h2>PawPraise</h2>
+        <h1>PET PRODUCTS</h1>
+        <p>100% Honest Reviews For All Products</p>
         <Button color="black" className="header-button" onClick={() => navigate('/products')}>
-          Shop Now
+          Learn More
         </Button>
       </div>
     </header>

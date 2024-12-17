@@ -23,7 +23,8 @@ function Login() {
       return toast.error('Enter All the Inputs');
     }
 
-    const endpoint = email === adminEmail ? '/api/admin/login' : '/api/users/login';
+    const endpoint = email === adminEmail ? 'http://localhost:5000/api/admin/login' : 'http://localhost:5000/api/users/login';
+    //const endpoint = 'http://localhost:5000/api/users/login';
 
     try {
       const response = await axios.post(endpoint, loginData);
