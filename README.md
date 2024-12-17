@@ -73,4 +73,3 @@ The client will be running at http://localhost:3000.
   - Node.js & Express.js
   - MongoDB for database
   - Bcrypt for password hashing
-  - Multer & Cloudinary for image upload
